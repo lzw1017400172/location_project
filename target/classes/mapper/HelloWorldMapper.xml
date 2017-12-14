@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lzw.mapper.HelloWorldMapper">
+
+    <insert id="insert">
+        INSERT INTO location_message (create_time,remark_,ip_longitude_and_latitude,ip_address,llq_longitude_and_latitude,llq_address,sdk_longitude_and_latitude,sdk_address)
+         VALUE
+         (#{cm.createTime},#{cm.remark},#{cm.ipLongitudeAndLatitude},#{cm.ipAddress},#{cm.llqLongitudeAndLatitude},#{cm.llqAddress},#{cm.sdkLongitudeAndLatitude},#{cm.sdkAddress})
+    </insert>
+
+    <update id="update">
+        UPDATE location_message SET
+                <if test="cm.createTime != null and cm.createTime != '' ">
+                    create_time = #{cm.createTme}
+                </if>
+                <if test="cm.remark != null and cm.remark != '' ">
+                    remark_ = #{cm.remark}
+                </if>
+                <if test="cm.ipLongitudeAndLatitude != null and cm.ipLongitudeAndLatitude != '' ">
+                    ip_longitude_and_latitude = #{cm.ipLongitudeAndLatitude}
+                </if>
+                <if test="cm.ip_address != null and cm.ip_address != '' ">
+                    ip_address = #{cm.ipAddress}
+                </if>
+                <if test="cm.address != null and cm.address != '' ">
+                    llq_longitude_and_latitude = #{cm.llqAddress}
+                </if>
+                <if test="cm.llqAddress != null and cm.llqAddress != '' ">
+                    llq_address = #{cm.llqAddress}
+                </if>
+                <if test="cm.sdkLongitudeAndLatitude != null and cm.sdkLongitudeAndLatitude != '' ">
+                    sdk_longitude_and_latitude = #{cm.sdkLongitudeAndLatitude}
+                </if>
+                <if test="cm.sdkAddress != null and cm.sdkAddress != '' ">
+                    sdk_address = #{cm.sdkAddress}
+                </if>
+        WHERE id_ = #{cm.id}
+
+    </update>
+
+    <select id="queryList" resultType="com.lzw.model.HelloWorld">
+          SELECT * FROM location_message
+          <where>
+              <if test="cm.createTime != null and cm.createTime != '' ">
+                  AND create_time = #{cm.createTme}
+              </if>
+              <if test="cm.remark != null and cm.remark != '' ">
+                  AND remark_ = #{cm.remark}
+              </if>
+              <if test="cm.llqAddress != null and cm.llqAddress != '' ">
+                  AND  llq_address = #{cm.llqAddress}
+              </if>
+              <if test="cm.ipAddress != null and cm.ipAddress != '' ">
+                  AND  ip_address like CONCAT('%',#{cm.ipAddress},'%')
+              </if>
+              <if test="cm.sdkAddress != null and cm.sdkAddress != '' ">
+                  AND  sdk_address like CONCAT('%',#{cm.sdkAddress},'%')
+              </if>
+          </where>
+          ORDER BY create_time DESC
+    </select>
+
+    <select id="queryListTotal" resultType="java.lang.Integer">
+        SELECT count(*) FROM location_message
+        <where>
+            <if test="cm.createTime != null and cm.createTime != '' ">
+                AND create_time = #{cm.createTme}
+            </if>
+            <if test="cm.remark != null and cm.remark != '' ">
+                AND remark_ = #{cm.remark}
+            </if>
+            <if test="cm.llqAddress != null and cm.llqAddress != '' ">
+                AND  llq_address = #{cm.llqAddress}
+            </if>
+            <if test="cm.ipAddress != null and cm.ipAddress != '' ">
+                AND  ip_address like CONCAT('%',#{cm.ipAddress},'%')
+            </if>
+            <if test="cm.sdkAddress != null and cm.sdkAddress != '' ">
+                AND  sdk_address like CONCAT('%',#{cm.sdkAddress},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="queryListPage" resultType="com.lzw.model.HelloWorld">
+        SELECT * FROM location_message
+        <where>
+            <if test="cm.createTime != null and cm.createTime != '' ">
+                AND create_time = #{cm.createTme}
+            </if>
+            <if test="cm.remark != null and cm.remark != '' ">
+                AND remark_ = #{cm.remark}
+            </if>
+            <if test="cm.llqAddress != null and cm.llqAddress != '' ">
+                AND  llq_address = #{cm.llqAddress}
+            </if>
+            <if test="cm.ipAddress != null and cm.ipAddress != '' ">
+                AND  ip_address like CONCAT('%',#{cm.ipAddress},'%')
+            </if>
+            <if test="cm.sdkAddress != null and cm.sdkAddress != '' ">
+                AND  sdk_address like CONCAT('%',#{cm.sdkAddress},'%')
+            </if>
+        </where>
+        ORDER BY create_time DESC limit ${page.pageNO},${page.pageSize}
+    </select>
+</mapper>

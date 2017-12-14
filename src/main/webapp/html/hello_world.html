@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <title>Title</title>
+    <link rel="stylesheet" href="../misc/css/bootstrap.min.css">
+    <style type="text/css">
+        body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;font-family:"微软雅黑";}
+    </style>
+</head>
+<body>
+    <H1>Hello World!</H1>
+
+
+
+</body>
+
+<script src="../misc/js/jquery-3.2.1.min.js" charset="utf-8" type="text/javascript"></script>
+<script src="../misc/js/bootstrap.min.js" charset="utf-8" type="text/javascript"></script>
+<!--调用vaidu地图api，这就是用的jsonp跨域，百度提供了这个服务端的支持，有一个接口  http://api.map.baidu.com/api -->
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=KYK8C6EeXTxqlilT4GiNExUm7wb7Og5P"></script>
+
+<script charset="utf-8" type="text/javascript">
+    $(function () {
+        var llqPoint = "";
+        var llqAddress = "";
+        var ipAddress = "";
+        var sdkPoint = "";
+        var sdkAddress = "";
+
+        var geolocation = new BMap.Geolocation();
+
+        //IP定位
+        function myFun(result){
+            var cityName = result.name;
+            ipAddress = cityName;
+        }
+        var myCity = new BMap.LocalCity();
+        myCity.get(myFun);
+
+        // 开启SDK辅助定位
+        geolocation.enableSDKLocation();
+        geolocation.getCurrentPosition(function(r){
+            if(this.getStatus() == BMAP_STATUS_SUCCESS){
+
+                sdkPoint = r.point.lng+','+r.point.lat;
+                var myGeo = new BMap.Geocoder();
+                myGeo.getLocation(new BMap.Point(r.point.lng, r.point.lat), function(result){
+                    if (result){
+                        console.log(result);
+                        sdkAddress = result.address;
+                    }
+                });
+            } else {
+                alert('failed'+this.getStatus());
+            }
+        });
+
+        var intervalId = setInterval(function(){
+
+            if(sdkPoint && sdkAddress){
+                var object = {
+                    ipLongitudeAndLatitude: "",
+                    ipAddress: ipAddress,
+                    llqLongitudeAndLatitude: llqPoint,
+                    llqAddress: llqAddress,
+                    sdkLongitudeAndLatitude: sdkPoint,
+                    sdkAddress: sdkAddress
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/helloWorld',
+                    data: JSON.stringify(object),
+                    contentType: 'application/json;charset=utf-8',
+                    success: function (data) {
+                    },
+                    error: function () {
+                    }
+                });
+                clearInterval(intervalId);
+            } else {
+                console.log("没有获取导数据，继续执行请求！！")
+            }
+
+        },3000);
+
+    });
+
+</script>
+</html>

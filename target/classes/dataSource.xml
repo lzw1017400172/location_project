@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--数据库连接池-->
+    <context:property-placeholder location="classpath:config.properties"/>
+
+    <bean id="writeDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close" init-method="init" lazy-init="true">
+        <description>只写数据库连接</description>
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="defaultReadOnly" value="false" />
+    </bean>
+
+    <bean id="readDataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close" init-method="init" lazy-init="true">
+        <description>只读数据库连接</description>
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="defaultReadOnly" value="true" />
+    </bean>
+
+
+    <!--通过bean管理 ChooseDataSource 来注入数据源-->
+    <bean id="dataSource" class="com.lzw.uitls.aspect.ChooseDataSource" lazy-init="true">
+        <description>数据源</description>
+        <!--注入目标数据源-->
+        <property name="targetDataSources">
+            <map key-type="java.lang.String" value-type="javax.sql.DataSource">
+                <!-- write -->
+                <entry key="write" value-ref="writeDataSource" />
+                <!-- read -->
+                <entry key="read" value-ref="readDataSource" />
+            </map>
+        </property>
+        <!--默认的数据源-->
+        <property name="defaultTargetDataSource" ref="writeDataSource" />
+        <!--set注入methodType方法，根据name使用ONGL技术，查找set+方法名注入-->
+        <property name="methodType">
+            <map key-type="java.lang.String">
+                <!-- read -->
+                <entry key="read" value=",get,select,count,list,query,lzw" />
+                <!-- write -->
+                <entry key="write" value=",add,insert,create,update,delete,remove,cyx" />
+                <!-- st -->
+                <entry key="st" value=",stquery," />
+            </map>
+        </property>
+
+    </bean>
+
+    <!--将AOP切面纳入bean管理启动时就创建对象。一般bean管理全都是容器初始化时创建对象，设置延迟加载lazy-init="true"，会在第一次使用时初始化-->
+    <bean class="com.lzw.uitls.aspect.DataSourceAspect"/><!--只需要让他在容器启动时初始化，不需要呗其他依赖，就没有声明id-->
+
+    <!--jdbctmple模版，增删改操作模版，类似的在配置redis时也可以配置jedis操作模版-->
+    <bean class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg ref="dataSource"/>
+    </bean>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</beans>
